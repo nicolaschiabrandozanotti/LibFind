@@ -1,0 +1,110 @@
+{
+  "kind": "plugin-eval-benchmark",
+  "schemaVersion": 2,
+  "version": 2,
+  "targetKind": "skill",
+  "targetName": "libfind",
+  "runner": {
+    "type": "codex-cli",
+    "model": "gpt-5.2",
+    "sandbox": "workspace-write",
+    "approvalPolicy": "never",
+    "extraArgs": []
+  },
+  "workspace": {
+    "sourcePath": ".",
+    "setupMode": "copy",
+    "preserve": "on-failure"
+  },
+  "targetProvisioning": {
+    "mode": "isolated-skill-home"
+  },
+  "verifiers": {
+    "commands": []
+  },
+  "notes": [
+    "These scenarios exercise LibFind decision quality, not package installation.",
+    "Benchmark runs may browse or execute Codex tasks depending on the runner environment.",
+    "Use references/scenarios.md for manual review when plugin-eval is unavailable."
+  ],
+  "setupQuestions": [
+    "Did the run distinguish trivial in-house work from dependency-worthy work?",
+    "Did the run apply hard rejection gates before scoring or popularity arguments?",
+    "Did the run use the compact format when search was skipped or evidence was insufficient?",
+    "Did the run omit install commands unless a candidate passed all gates?"
+  ],
+  "scenarios": [
+    {
+      "id": "trivial-helper-no-search",
+      "title": "Trivial helper should skip search",
+      "purpose": "Verify LibFind does not create dependency work for a small, clear helper.",
+      "userInput": "Use $libfind before adding a helper that maps two boolean UI flags into one CSS class string. The implementation should be under 20 lines and only used in one component.",
+      "successChecklist": [
+        "Recommends `build it in-house`.",
+        "Explicitly says external search is not justified.",
+        "Uses the compact format without candidate or comparison-table sections.",
+        "Does not provide install commands."
+      ]
+    },
+    {
+      "id": "markdown-sanitizer-full-comparison",
+      "title": "Markdown sanitizer needs full comparison",
+      "purpose": "Verify security-sensitive, standards-adjacent work triggers a real search and full comparison.",
+      "userInput": "Use $libfind to evaluate TypeScript libraries for rendering and sanitizing user-submitted Markdown in a Next.js app. The content is stored, rendered to other users, and XSS risk matters.",
+      "successChecklist": [
+        "Defines npm/TypeScript/Next.js search scope before evaluating candidates.",
+        "Evaluates multiple candidates with license, security, maintenance, and compatibility evidence.",
+        "Uses the full comparison format with rejections and reasons.",
+        "Compares the recommended library against building a parser/sanitizer in-house."
+      ]
+    },
+    {
+      "id": "missing-license-hard-reject",
+      "title": "Missing license blocks recommendation",
+      "purpose": "Verify missing evidence blocks recommendation even when a package appears useful.",
+      "userInput": "Use $libfind to evaluate a small GitHub package for parsing feature-flag expressions. The repository appears useful, but you cannot verify license metadata or package provenance.",
+      "successChecklist": [
+        "Does not recommend the package.",
+        "Uses the exact insufficient-evidence phrase when critical evidence is missing.",
+        "Explains which evidence is missing.",
+        "Does not provide install commands."
+      ]
+    },
+    {
+      "id": "csv-import-scope-split",
+      "title": "CSV import should distinguish simple and robust scope",
+      "purpose": "Verify LibFind separates trivial parsing from dependency-worthy CSV requirements.",
+      "userInput": "Use $libfind before implementing CSV import in a Node TypeScript service. The feature must handle quoted fields, embedded newlines, large files, streaming, and clear row-level errors.",
+      "successChecklist": [
+        "Treats robust CSV parsing as search-justified.",
+        "Calls out that a tiny one-off CSV subset would be in-house, but this requirement is broader.",
+        "Classifies candidate dependency impact correctly.",
+        "Includes pending production checks for malformed files and large-file behavior."
+      ]
+    },
+    {
+      "id": "crypto-no-in-house",
+      "title": "Cryptography should avoid custom implementation",
+      "purpose": "Verify standards-driven security work receives stricter scrutiny and does not recommend custom crypto.",
+      "userInput": "Use $libfind before implementing password hashing and signed reset tokens in a backend service. Decide whether to add a library or build the crypto pieces ourselves.",
+      "successChecklist": [
+        "Treats cryptography as security-sensitive and search-justified.",
+        "Rejects custom cryptographic primitives as the default path.",
+        "Applies stricter security and maintenance gates.",
+        "Separates library recommendation from final production security review."
+      ]
+    },
+    {
+      "id": "runtime-sdk-risk",
+      "title": "Runtime SDK requires high-impact scrutiny",
+      "purpose": "Verify external SDKs and runtime dependencies receive stricter dependency-risk review.",
+      "userInput": "Use $libfind before adding a geocoding provider SDK to a serverless app. It would run in production, affect cold starts, and could lock us into one provider.",
+      "successChecklist": [
+        "Classifies the candidate category as external SDK/runtime dependency.",
+        "Applies stricter scrutiny for lock-in, bundle/runtime impact, maintenance, and provenance.",
+        "Compares SDK use against a small direct HTTP client if the API surface is narrow.",
+        "Lists manual checks for rate limits, retries, credentials, and provider portability."
+      ]
+    }
+  ]
+}

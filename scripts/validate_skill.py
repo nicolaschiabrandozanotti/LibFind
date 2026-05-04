@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import sys
+import json
 from pathlib import Path
 
 
@@ -81,6 +82,28 @@ def validate_skill(skill_path: Path) -> list[str]:
         for required in ("display_name:", "short_description:", "default_prompt:"):
             if required not in agent_text:
                 errors.append(f"agents/openai.yaml missing {required}")
+
+    benchmark = skill_path / ".plugin-eval" / "benchmark.json"
+    if benchmark.exists():
+        try:
+            benchmark_data = json.loads(benchmark.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f".plugin-eval/benchmark.json is invalid JSON: {exc}")
+        else:
+            scenarios = benchmark_data.get("scenarios")
+            if not isinstance(scenarios, list) or len(scenarios) < 3:
+                errors.append(".plugin-eval/benchmark.json must define at least three scenarios")
+            else:
+                for index, scenario in enumerate(scenarios, start=1):
+                    if not isinstance(scenario, dict):
+                        errors.append(f"Benchmark scenario {index} must be an object")
+                        continue
+                    for required in ("id", "title", "purpose", "userInput", "successChecklist"):
+                        if required not in scenario:
+                            errors.append(f"Benchmark scenario {index} missing {required}")
+                    checklist = scenario.get("successChecklist")
+                    if not isinstance(checklist, list) or not checklist:
+                        errors.append(f"Benchmark scenario {index} must include a non-empty successChecklist")
 
     return errors
 
