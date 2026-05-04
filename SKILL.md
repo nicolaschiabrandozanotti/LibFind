@@ -72,26 +72,15 @@ Search is justified when the requirement is non-trivial, security-sensitive, sta
 
 This decision is a branch point. If search is skipped, do not list external candidates as evaluated and do not provide install commands. Keep the answer focused on the in-house approach, why external dependencies are unnecessary, and what must still be verified.
 
+## Rubric Reference
+
+Read `references/rubric.md` when search is justified or a candidate needs comparison against in-house implementation.
+
+That file is the source of truth for detailed gates, scoring weights, dependency categories, evidence checklist, and the library-vs-in-house matrix. A hard rejection from the rubric blocks recommendation even if the candidate is popular or scores well.
+
 ## Hard Rejection Gates
 
-Reject by default if any candidate has:
-
-- missing, unclear, proprietary, paid-only, or incompatible license
-- incompatible strong-copyleft license for expected commercial/internal use
-- unresolved high or critical security advisories
-- malware, typosquatting, package hijacking, or suspicious package provenance signals
-- suspicious install scripts without clear justification
-- risky maintainer signals
-- abandoned package for a critical/runtime dependency
-- incompatible stack, runtime, framework, or API
-- excessive dependency weight for the problem
-- integration requiring architecture rewrite
-- unreliable releases
-- ignored security issues
-- package/repository mismatch
-- insufficient documentation for safe use
-
-A hard rejection blocks recommendation even if the candidate is popular or scores well.
+Reject by default when a candidate has material problems with license, security, provenance, install behavior, maintainer trust, compatibility, documentation, dependency weight, release reliability, or integration cost. Use `references/rubric.md` for the exact pass/fail gates.
 
 ## Conservative Decision Rules
 
@@ -110,18 +99,7 @@ Do not invent license, security, maintenance, compatibility, or provenance data.
 
 ## Build-vs-In-House Guidance
 
-Compare each viable candidate against a direct in-house implementation:
-
-- problem complexity
-- module criticality
-- security and license risk
-- dependency size and runtime/bundle impact
-- maintenance frequency and maturity
-- ease of replacement and lock-in
-- stack compatibility
-- integration cost
-- cost to implement internally
-- cost to maintain internally
+Compare each viable candidate against a direct in-house implementation using the library-vs-in-house matrix in `references/rubric.md`.
 
 Recommend a library only when the benefit remains clear after this comparison.
 
