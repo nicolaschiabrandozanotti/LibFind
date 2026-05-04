@@ -1,0 +1,4 @@
+interface:
+  display_name: "LibFind"
+  short_description: "Find safe GitHub libraries for projects"
+  default_prompt: "Use $libfind to find and evaluate reusable open-source libraries before implementing this feature."
