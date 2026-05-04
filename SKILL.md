@@ -103,21 +103,29 @@ Compare each viable candidate against a direct in-house implementation using the
 
 Recommend a library only when the benefit remains clear after this comparison.
 
-## Required Final Output Format
+## Final Output Formats
 
-Use these sections in the final answer:
+Choose the smallest final format that still covers the decision.
+
+Always include:
 
 - Context detected
 - Problem to solve
+- Final recommendation
+- Key evidence and reasoning
+- Pending risks
+- Checklist before integration
+- Sources/evidence reviewed
+
+Use the full comparison format when external search evaluates multiple candidates or the user asks for a detailed comparison. Add:
+
 - Search scope
 - Candidates evaluated
 - Comparison table
 - Rejections and reasons
-- Final recommendation
 - Why not build from scratch, or why build in-house
-- Pending risks
 - Install/import commands, if applicable
-- Checklist before integration
-- Sources/evidence reviewed
+
+Use the compact format when search is skipped, a single named candidate fails a hard gate, or evidence is insufficient. Omit empty candidate/comparison sections, but state why they were omitted.
 
 Include install/import commands only for candidates that pass all gates. If recommending `build it in-house`, omit install commands and describe the smallest safe in-house approach.
