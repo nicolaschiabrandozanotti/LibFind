@@ -207,7 +207,7 @@ libfind/
 Ejecutar:
 
 ```powershell
-python "C:\Users\nicoc\.codex\skills\.system\skill-creator\scripts\quick_validate.py" "C:\Users\nicoc\.codex\skills\libfind"
+python "C:\Users\usuario\.codex\skills\.system\skill-creator\scripts\quick_validate.py" "C:\Users\usuario\.codex\skills\libfind"
 ```
 
 Antes de mergear cambios a `main`, la validación debe pasar.
