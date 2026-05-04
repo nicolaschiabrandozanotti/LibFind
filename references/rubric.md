@@ -30,11 +30,15 @@ Use this rubric after repository context and search scope are clear. The score h
 Fail the candidate if any gate is not satisfied:
 
 - License is missing, ambiguous, incompatible, proprietary, paid-only, or unacceptable for expected use.
+- License creates incompatible strong-copyleft obligations for expected commercial/internal use.
 - High or critical security advisories are unresolved.
-- Package provenance suggests malware, typosquatting, hijacking, or repository/package mismatch.
+- Package provenance suggests malware, typosquatting, hijacking, suspicious ownership transfer, or repository/package mismatch.
 - Install scripts are suspicious and not justified by the package purpose.
+- Maintainer signals are risky, security issues are ignored, or releases are unreliable for the dependency category.
 - The API, runtime, framework, or platform is incompatible with the current project.
 - The library is abandoned for a critical or runtime dependency.
+- Dependency weight is excessive for the problem being solved.
+- Integration requires an architecture rewrite or disproportionate migration.
 - Documentation is insufficient for safe use.
 
 ## Dependency Categories

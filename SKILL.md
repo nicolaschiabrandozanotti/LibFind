@@ -22,15 +22,16 @@ Only evaluate options, recommend or reject candidates, justify conclusions with 
 2. Inspect or infer the repository context.
 3. Define the search scope.
 4. Decide whether a library search is justified.
-5. Search for candidates.
-6. Apply hard rejection gates.
-7. Evaluate remaining candidates with `references/rubric.md`.
-8. Compare against in-house implementation.
-9. Recommend one option or `build it in-house`.
-10. Explain evidence and risks.
-11. Provide install/import commands only if the recommendation passes all gates.
-12. Provide manual integration next steps.
-13. State what must be manually verified before production.
+5. If search is not justified, do not search externally. Recommend `build it in-house`, explain why, describe the smallest safe in-house approach, and state any production checks still needed.
+6. If search is justified, search for candidates.
+7. Apply hard rejection gates.
+8. Evaluate remaining candidates with `references/rubric.md`.
+9. Compare against in-house implementation.
+10. Recommend one option or `build it in-house`.
+11. Explain evidence and risks.
+12. Provide install/import commands only if the recommendation passes all gates.
+13. Provide manual integration next steps.
+14. State what must be manually verified before production.
 
 ## Repository Context Discovery
 
@@ -69,26 +70,17 @@ Skip external library search and recommend `build it in-house` when the problem 
 
 Search is justified when the requirement is non-trivial, security-sensitive, standards-driven, algorithmically complex, interoperability-heavy, or already solved by mature libraries with a meaningful maintenance advantage.
 
+This decision is a branch point. If search is skipped, do not list external candidates as evaluated and do not provide install commands. Keep the answer focused on the in-house approach, why external dependencies are unnecessary, and what must still be verified.
+
+## Rubric Reference
+
+Read `references/rubric.md` when search is justified or a candidate needs comparison against in-house implementation.
+
+That file is the source of truth for detailed gates, scoring weights, dependency categories, evidence checklist, and the library-vs-in-house matrix. A hard rejection from the rubric blocks recommendation even if the candidate is popular or scores well.
+
 ## Hard Rejection Gates
 
-Reject by default if any candidate has:
-
-- missing, unclear, proprietary, paid-only, or incompatible license
-- incompatible strong-copyleft license for expected commercial/internal use
-- unresolved high or critical security advisories
-- malware, typosquatting, package hijacking, or suspicious package provenance signals
-- suspicious install scripts without clear justification
-- risky maintainer signals
-- abandoned package for a critical/runtime dependency
-- incompatible stack, runtime, framework, or API
-- excessive dependency weight for the problem
-- integration requiring architecture rewrite
-- unreliable releases
-- ignored security issues
-- package/repository mismatch
-- insufficient documentation for safe use
-
-A hard rejection blocks recommendation even if the candidate is popular or scores well.
+Reject by default when a candidate has material problems with license, security, provenance, install behavior, maintainer trust, compatibility, documentation, dependency weight, release reliability, or integration cost. Use `references/rubric.md` for the exact pass/fail gates.
 
 ## Conservative Decision Rules
 
@@ -107,36 +99,33 @@ Do not invent license, security, maintenance, compatibility, or provenance data.
 
 ## Build-vs-In-House Guidance
 
-Compare each viable candidate against a direct in-house implementation:
-
-- problem complexity
-- module criticality
-- security and license risk
-- dependency size and runtime/bundle impact
-- maintenance frequency and maturity
-- ease of replacement and lock-in
-- stack compatibility
-- integration cost
-- cost to implement internally
-- cost to maintain internally
+Compare each viable candidate against a direct in-house implementation using the library-vs-in-house matrix in `references/rubric.md`.
 
 Recommend a library only when the benefit remains clear after this comparison.
 
-## Required Final Output Format
+## Final Output Formats
 
-Use these sections in the final answer:
+Choose the smallest final format that still covers the decision.
+
+Always include:
 
 - Context detected
 - Problem to solve
+- Final recommendation
+- Key evidence and reasoning
+- Pending risks
+- Checklist before integration
+- Sources/evidence reviewed
+
+Use the full comparison format when external search evaluates multiple candidates or the user asks for a detailed comparison. Add:
+
 - Search scope
 - Candidates evaluated
 - Comparison table
 - Rejections and reasons
-- Final recommendation
 - Why not build from scratch, or why build in-house
-- Pending risks
 - Install/import commands, if applicable
-- Checklist before integration
-- Sources/evidence reviewed
+
+Use the compact format when search is skipped, a single named candidate fails a hard gate, or evidence is insufficient. Omit empty candidate/comparison sections, but state why they were omitted.
 
 Include install/import commands only for candidates that pass all gates. If recommending `build it in-house`, omit install commands and describe the smallest safe in-house approach.
