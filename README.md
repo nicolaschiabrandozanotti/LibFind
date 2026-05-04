@@ -196,6 +196,8 @@ libfind/
 ├── VERSION
 ├── agents/
 │   └── openai.yaml
+├── scripts/
+│   └── validate_skill.py
 └── references/
     └── rubric.md
 ```
@@ -204,11 +206,13 @@ libfind/
 
 ## Cómo Validar
 
-Ejecutar:
+Desde la raíz de la skill, ejecutar el validador local:
 
 ```powershell
-python "C:\Users\nicoc\.codex\skills\.system\skill-creator\scripts\quick_validate.py" "C:\Users\nicoc\.codex\skills\libfind"
+python .\scripts\validate_skill.py .
 ```
+
+El script usa sólo la standard library de Python, por lo que no requiere `PyYAML` ni paquetes externos. Si `python` no está en el PATH, usá cualquier ejecutable de Python 3 disponible y mantené los argumentos relativos.
 
 Antes de mergear cambios a `main`, la validación debe pasar.
 
