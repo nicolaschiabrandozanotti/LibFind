@@ -11,6 +11,12 @@
 - Replaced the personal validation path in `README.md` with a portable local validator.
 - Added LibFind benchmark scenarios and manual scenario guidance for future behavior checks.
 
+### Fixed
+
+- Updated remaining `README.md` validation references to use the local validator.
+- Expanded manual scenario docs with full prompts and success checklists.
+- Added the local skill validator as a `plugin-eval` benchmark verifier command.
+
 ## [0.1.0] - 2026-05-03
 
 ### Added

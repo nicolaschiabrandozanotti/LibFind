@@ -20,7 +20,9 @@
     "mode": "isolated-skill-home"
   },
   "verifiers": {
-    "commands": []
+    "commands": [
+      "python3 scripts/validate_skill.py . || python scripts/validate_skill.py ."
+    ]
   },
   "notes": [
     "These scenarios exercise LibFind decision quality, not package installation.",
