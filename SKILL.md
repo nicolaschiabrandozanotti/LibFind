@@ -22,15 +22,16 @@ Only evaluate options, recommend or reject candidates, justify conclusions with 
 2. Inspect or infer the repository context.
 3. Define the search scope.
 4. Decide whether a library search is justified.
-5. Search for candidates.
-6. Apply hard rejection gates.
-7. Evaluate remaining candidates with `references/rubric.md`.
-8. Compare against in-house implementation.
-9. Recommend one option or `build it in-house`.
-10. Explain evidence and risks.
-11. Provide install/import commands only if the recommendation passes all gates.
-12. Provide manual integration next steps.
-13. State what must be manually verified before production.
+5. If search is not justified, do not search externally. Recommend `build it in-house`, explain why, describe the smallest safe in-house approach, and state any production checks still needed.
+6. If search is justified, search for candidates.
+7. Apply hard rejection gates.
+8. Evaluate remaining candidates with `references/rubric.md`.
+9. Compare against in-house implementation.
+10. Recommend one option or `build it in-house`.
+11. Explain evidence and risks.
+12. Provide install/import commands only if the recommendation passes all gates.
+13. Provide manual integration next steps.
+14. State what must be manually verified before production.
 
 ## Repository Context Discovery
 
@@ -68,6 +69,8 @@ Do not search broadly before the scope is clear enough to avoid irrelevant popul
 Skip external library search and recommend `build it in-house` when the problem is simple, the implementation would be short and clear, the project only needs a tiny slice of a library, or a dependency would add more risk than value.
 
 Search is justified when the requirement is non-trivial, security-sensitive, standards-driven, algorithmically complex, interoperability-heavy, or already solved by mature libraries with a meaningful maintenance advantage.
+
+This decision is a branch point. If search is skipped, do not list external candidates as evaluated and do not provide install commands. Keep the answer focused on the in-house approach, why external dependencies are unnecessary, and what must still be verified.
 
 ## Hard Rejection Gates
 
