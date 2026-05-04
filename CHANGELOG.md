@@ -8,6 +8,7 @@
 - Added an explicit no-search path that recommends `build it in-house` without evaluating external candidates.
 - Reduced duplicated gate and build-vs-in-house detail in `SKILL.md` by making `references/rubric.md` the detailed source of truth.
 - Replaced the single mandatory final-answer format with bounded full and compact formats.
+- Replaced the personal validation path in `README.md` with a portable local validator.
 
 ## [0.1.0] - 2026-05-03
 
