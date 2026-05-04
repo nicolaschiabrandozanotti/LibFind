@@ -190,6 +190,9 @@ La decisión final de producción debe validarse manualmente con los procesos in
 
 ```text
 libfind/
+├── .plugin-eval/
+│   ├── .gitignore
+│   └── benchmark.json
 ├── README.md
 ├── SKILL.md
 ├── CHANGELOG.md
@@ -199,7 +202,8 @@ libfind/
 ├── scripts/
 │   └── validate_skill.py
 └── references/
-    └── rubric.md
+    ├── rubric.md
+    └── scenarios.md
 ```
 
 ---
@@ -215,6 +219,20 @@ python .\scripts\validate_skill.py .
 El script usa sólo la standard library de Python, por lo que no requiere `PyYAML` ni paquetes externos. Si `python` no está en el PATH, usá cualquier ejecutable de Python 3 disponible y mantené los argumentos relativos.
 
 Antes de mergear cambios a `main`, la validación debe pasar.
+
+---
+
+## Cómo Probar Escenarios
+
+Los escenarios de prueba viven en `references/scenarios.md` y están espejados en `.plugin-eval/benchmark.json`.
+
+Si `plugin-eval` está disponible:
+
+```powershell
+plugin-eval benchmark . --config .\.plugin-eval\benchmark.json
+```
+
+Si no está disponible, usar `references/scenarios.md` como checklist manual para revisar respuestas de la skill.
 
 ---
 

@@ -9,6 +9,7 @@
 - Reduced duplicated gate and build-vs-in-house detail in `SKILL.md` by making `references/rubric.md` the detailed source of truth.
 - Replaced the single mandatory final-answer format with bounded full and compact formats.
 - Replaced the personal validation path in `README.md` with a portable local validator.
+- Added LibFind benchmark scenarios and manual scenario guidance for future behavior checks.
 
 ## [0.1.0] - 2026-05-03
 

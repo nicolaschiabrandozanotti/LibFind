@@ -129,3 +129,7 @@ Use the full comparison format when external search evaluates multiple candidate
 Use the compact format when search is skipped, a single named candidate fails a hard gate, or evidence is insufficient. Omit empty candidate/comparison sections, but state why they were omitted.
 
 Include install/import commands only for candidates that pass all gates. If recommending `build it in-house`, omit install commands and describe the smallest safe in-house approach.
+
+## Forward Testing
+
+When changing decision rules, gates, or output formats, use `references/scenarios.md` for manual review. If `plugin-eval` is available, run the mirrored scenarios in `.plugin-eval/benchmark.json`.
