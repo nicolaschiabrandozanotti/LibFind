@@ -21,18 +21,19 @@
   },
   "verifiers": {
     "commands": [
-      "python3 scripts/validate_skill.py . || python scripts/validate_skill.py ."
+      "sh ./scripts/run_validate.sh ."
     ]
   },
   "notes": [
     "These scenarios exercise LibFind decision quality, not package installation.",
     "Benchmark runs may browse or execute Codex tasks depending on the runner environment.",
+    "The verifier command assumes the plugin-eval harness shell and stays POSIX-friendly.",
     "Use references/scenarios.md for manual review when plugin-eval is unavailable."
   ],
   "setupQuestions": [
-    "Did the run distinguish trivial in-house work from dependency-worthy work?",
+    "Did the run use the canonical Outcome code contract instead of free-form outcomes?",
+    "Did the run distinguish trivial or internal-utility cases from dependency-worthy work?",
     "Did the run apply hard rejection gates before scoring or popularity arguments?",
-    "Did the run use the compact format when search was skipped or evidence was insufficient?",
     "Did the run omit install commands unless a candidate passed all gates?"
   ],
   "scenarios": [
@@ -42,7 +43,7 @@
       "purpose": "Verify LibFind does not create dependency work for a small, clear helper.",
       "userInput": "Use $libfind before adding a helper that maps two boolean UI flags into one CSS class string. The implementation should be under 20 lines and only used in one component.",
       "successChecklist": [
-        "Recommends `build it in-house`.",
+        "Includes `Outcome code: build-it-in-house`.",
         "Explicitly says external search is not justified.",
         "Uses the compact format without candidate or comparison-table sections.",
         "Does not provide install commands."
@@ -54,10 +55,10 @@
       "purpose": "Verify security-sensitive, standards-adjacent work triggers a real search and full comparison.",
       "userInput": "Use $libfind to evaluate TypeScript libraries for rendering and sanitizing user-submitted Markdown in a Next.js app. The content is stored, rendered to other users, and XSS risk matters.",
       "successChecklist": [
-        "Defines npm/TypeScript/Next.js search scope before evaluating candidates.",
+        "Defines npm, TypeScript, and Next.js search scope before evaluating candidates.",
         "Evaluates multiple candidates with license, security, maintenance, and compatibility evidence.",
         "Uses the full comparison format with rejections and reasons.",
-        "Compares the recommended library against building a parser/sanitizer in-house."
+        "Compares the recommendation against building a parser or sanitizer in-house."
       ]
     },
     {
@@ -67,7 +68,7 @@
       "userInput": "Use $libfind to evaluate a small GitHub package for parsing feature-flag expressions. The repository appears useful, but you cannot verify license metadata or package provenance.",
       "successChecklist": [
         "Does not recommend the package.",
-        "Uses the exact insufficient-evidence phrase when critical evidence is missing.",
+        "Includes `Outcome code: insufficient-evidence`.",
         "Explains which evidence is missing.",
         "Does not provide install commands."
       ]
@@ -102,10 +103,70 @@
       "purpose": "Verify external SDKs and runtime dependencies receive stricter dependency-risk review.",
       "userInput": "Use $libfind before adding a geocoding provider SDK to a serverless app. It would run in production, affect cold starts, and could lock us into one provider.",
       "successChecklist": [
-        "Classifies the candidate category as external SDK/runtime dependency.",
-        "Applies stricter scrutiny for lock-in, bundle/runtime impact, maintenance, and provenance.",
+        "Classifies the candidate category as `external SDK` or runtime dependency.",
+        "Applies stricter scrutiny for lock-in, bundle or runtime impact, maintenance, and provenance.",
         "Compares SDK use against a small direct HTTP client if the API surface is narrow.",
         "Lists manual checks for rate limits, retries, credentials, and provider portability."
+      ]
+    },
+    {
+      "id": "named-package-still-needs-evidence",
+      "title": "Named package still needs evidence",
+      "purpose": "Verify a pre-selected package still has to clear the same evidence gates.",
+      "userInput": "Use $libfind to evaluate a GitHub package the team already wants to use for feature-flag parsing. You cannot verify the registry owner or a license file, but the package name is already in the design doc.",
+      "successChecklist": [
+        "Does not treat team preference as evidence.",
+        "Includes `Outcome code: insufficient-evidence`.",
+        "Explains the missing provenance or license checks.",
+        "Does not provide install commands."
+      ]
+    },
+    {
+      "id": "internal-utility-no-new-dep",
+      "title": "Existing internal utility should block a new dependency",
+      "purpose": "Verify existing repo utilities can justify staying in-house.",
+      "userInput": "Use $libfind before adding a slugify library to this Node service. The repository already contains a small internal helper that handles the only slug format the product needs.",
+      "successChecklist": [
+        "Detects that an internal utility already satisfies the requirement.",
+        "Includes `Outcome code: build-it-in-house`.",
+        "Keeps the answer compact and focused on the existing internal path.",
+        "Does not provide install commands."
+      ]
+    },
+    {
+      "id": "dev-tooling-lower-scrutiny",
+      "title": "Dev tooling can tolerate lower scrutiny than runtime",
+      "purpose": "Verify LibFind distinguishes tooling risk from runtime dependency risk without relaxing license or security gates.",
+      "userInput": "Use $libfind before adding a CLI-only Markdown link checker to a docs CI job. It will not ship to production, but it still needs to be maintainable and safe to install in CI.",
+      "successChecklist": [
+        "Classifies the candidate as `dev dependency` or `CLI and tooling`.",
+        "Keeps license and security gates intact.",
+        "States that lower maturity may be acceptable than for a runtime dependency, and explains why.",
+        "Lists pending checks around CI fit, false positives, and maintenance."
+      ]
+    },
+    {
+      "id": "provenance-mismatch-reject",
+      "title": "Provenance mismatch should reject the candidate",
+      "purpose": "Verify package or repository mismatch triggers a hard rejection.",
+      "userInput": "Use $libfind to evaluate a package whose registry name is one character away from a popular library, and the linked GitHub repository does not match the published package metadata.",
+      "successChecklist": [
+        "Rejects the candidate on provenance or typosquatting risk.",
+        "Includes `Outcome code: do-not-use` or `Outcome code: insufficient-evidence`.",
+        "Explains the package or repository mismatch.",
+        "Does not provide install commands."
+      ]
+    },
+    {
+      "id": "no-network-provisional",
+      "title": "No-network evaluation must stay provisional",
+      "purpose": "Verify missing external access leads to an honest provisional result instead of invented facts.",
+      "userInput": "Use $libfind in a locked-down environment with no external network access to decide on a new dependency. You only have the repo context and the package name.",
+      "successChecklist": [
+        "States that the evaluation is limited by missing external evidence.",
+        "Includes `Outcome code: insufficient-evidence`.",
+        "Does not invent license, security, or maintenance facts.",
+        "Lists the exact external checks still required."
       ]
     }
   ]

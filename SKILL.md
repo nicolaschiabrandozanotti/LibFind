@@ -21,16 +21,16 @@ Only evaluate options, recommend or reject candidates, justify conclusions with 
 1. Understand the requirement.
 2. Inspect or infer the repository context.
 3. Define the search scope.
-4. Decide whether a library search is justified.
-5. If search is not justified, do not search externally. Recommend `build it in-house`, explain why, describe the smallest safe in-house approach, and state any production checks still needed.
-6. If search is justified, search for candidates.
-7. Apply hard rejection gates.
-8. Evaluate remaining candidates with `references/rubric.md`.
-9. Compare against in-house implementation.
-10. Recommend one option or `build it in-house`.
-11. Explain evidence and risks.
-12. Provide install/import commands only if the recommendation passes all gates.
-13. Provide manual integration next steps.
+4. Decide whether an external library search is justified.
+5. If search is not justified, do not search externally. Recommend `build-it-in-house`, explain why, describe the smallest safe in-house approach, and state any production checks still needed.
+6. If search is justified, gather minimum evidence before recommending anything.
+7. Search for candidates only after the scope is clear enough to avoid irrelevant popular packages.
+8. Apply hard rejection gates.
+9. Evaluate remaining candidates with `references/rubric.md`.
+10. Compare viable candidates against an in-house implementation.
+11. Recommend one option or `build-it-in-house`.
+12. Use the output contract in `references/output-formats.md`.
+13. Provide install/import commands only if the recommendation passes all gates.
 14. State what must be manually verified before production.
 
 ## Repository Context Discovery
@@ -47,11 +47,13 @@ Before searching externally, inspect or infer:
 
 If repo context is unavailable, state the missing context and mark conclusions as provisional.
 
+If the repo already has a small internal utility that safely solves the requirement, prefer `build-it-in-house` and explain that the existing internal path wins over a new dependency.
+
 ## Search Scope Definition
 
 Before searching for candidates, define:
 
-- primary language/ecosystem
+- primary language and ecosystem
 - expected package registry, if any
 - relevant GitHub repositories
 - search keywords
@@ -59,14 +61,28 @@ Before searching for candidates, define:
 - optional features
 - technical constraints
 - license constraints
-- runtime/deploy constraints
+- runtime and deployment constraints
 - whether small libraries are acceptable or only mature libraries should be considered
 
 Do not search broadly before the scope is clear enough to avoid irrelevant popular packages.
 
+## Minimum Evidence for Search-Justified Recommendations
+
+When search is justified, review at least:
+
+- package registry identity, if a registry package is involved
+- GitHub repository identity and repo/package match
+- license file or package license metadata
+- release history, tags, changelog, or other maintenance signals
+- security evidence such as advisories, OSV, registry alerts, or security issue handling
+- install behavior, lifecycle hooks, and dependency weight when that data is available
+- documentation quality and compatibility with the current stack
+
+If browsing is unavailable or any critical evidence cannot be verified, do not fill the gap with assumptions. Use `insufficient-evidence`, explain the missing checks, and keep the conclusion provisional.
+
 ## Decide Whether Search Is Justified
 
-Skip external library search and recommend `build it in-house` when the problem is simple, the implementation would be short and clear, the project only needs a tiny slice of a library, or a dependency would add more risk than value.
+Skip external library search and recommend `build-it-in-house` when the problem is simple, the implementation would be short and clear, the project only needs a tiny slice of a library, an equivalent internal utility already exists, or a dependency would add more risk than value.
 
 Search is justified when the requirement is non-trivial, security-sensitive, standards-driven, algorithmically complex, interoperability-heavy, or already solved by mature libraries with a meaningful maintenance advantage.
 
@@ -74,9 +90,36 @@ This decision is a branch point. If search is skipped, do not list external cand
 
 ## Rubric Reference
 
-Read `references/rubric.md` when search is justified or a candidate needs comparison against in-house implementation.
+Read `references/rubric.md` when search is justified or a named candidate needs comparison against an in-house implementation.
 
-That file is the source of truth for detailed gates, scoring weights, dependency categories, evidence checklist, and the library-vs-in-house matrix. A hard rejection from the rubric blocks recommendation even if the candidate is popular or scores well.
+That file is the source of truth for detailed gates, scoring weights, dependency categories, category-specific heuristics, evidence checklist, and the library-vs-in-house matrix. A hard rejection from the rubric blocks recommendation even if the candidate is popular or requested by name.
+
+## Outcome Contract
+
+Use a stable machine-readable outcome code in English and `kebab-case`. Keep the human explanation in the user's language.
+
+Canonical outcome codes:
+
+- `recommended-library`
+- `acceptable-alternative`
+- `use-only-if-constraint-applies`
+- `do-not-use`
+- `build-it-in-house`
+- `insufficient-evidence`
+
+Recommended optional reason codes include:
+
+- `simple-scope`
+- `existing-internal-utility`
+- `missing-license`
+- `missing-provenance`
+- `missing-security-evidence`
+- `compatibility-mismatch`
+- `dependency-weight`
+- `lock-in-risk`
+- `insufficient-maintenance`
+
+If critical evidence is missing, use `insufficient-evidence` as the outcome code and explain exactly which evidence is missing. Do not invent license, security, maintenance, compatibility, or provenance data.
 
 ## Hard Rejection Gates
 
@@ -85,50 +128,30 @@ Reject by default when a candidate has material problems with license, security,
 ## Conservative Decision Rules
 
 - Popularity does not imply safety.
+- A named package does not get a free pass because the user or team already prefers it.
 - A library must clearly beat custom implementation to be recommended.
-- Prefer `build it in-house` when the problem is simple, short, clear, or low-risk.
-- Prefer `build it in-house` when dependency risk, size, configuration, license uncertainty, security uncertainty, or maintenance uncertainty outweighs value.
+- Prefer `build-it-in-house` when the problem is simple, short, clear, or low-risk.
+- Prefer `build-it-in-house` when dependency risk, size, configuration, license uncertainty, security uncertainty, or maintenance uncertainty outweighs value.
 - Apply stricter scrutiny to runtime dependencies than dev dependencies or reference-only snippets.
 - Treat external SDKs, plugins, framework extensions, and runtime dependencies as high-impact unless proven otherwise.
 
-If evidence is missing, say exactly:
+## Final Output Contract
 
-`Evidencia insuficiente para recomendar esta librería de forma segura.`
-
-Do not invent license, security, maintenance, compatibility, or provenance data.
-
-## Build-vs-In-House Guidance
-
-Compare each viable candidate against a direct in-house implementation using the library-vs-in-house matrix in `references/rubric.md`.
-
-Recommend a library only when the benefit remains clear after this comparison.
-
-## Final Output Formats
-
-Choose the smallest final format that still covers the decision.
+Use `references/output-formats.md` as the exact response contract.
 
 Always include:
 
-- Context detected
-- Problem to solve
-- Final recommendation
-- Key evidence and reasoning
-- Pending risks
-- Checklist before integration
-- Sources/evidence reviewed
+- context detected
+- problem to solve
+- final recommendation with `Outcome code`
+- key evidence and reasoning
+- pending risks
+- checklist before integration
+- sources or evidence reviewed
 
-Use the full comparison format when external search evaluates multiple candidates or the user asks for a detailed comparison. Add:
+Use the compact format when search is skipped, a single named candidate fails a hard gate, the repo already has an internal utility, or evidence is insufficient.
 
-- Search scope
-- Candidates evaluated
-- Comparison table
-- Rejections and reasons
-- Why not build from scratch, or why build in-house
-- Install/import commands, if applicable
-
-Use the compact format when search is skipped, a single named candidate fails a hard gate, or evidence is insufficient. Omit empty candidate/comparison sections, but state why they were omitted.
-
-Include install/import commands only for candidates that pass all gates. If recommending `build it in-house`, omit install commands and describe the smallest safe in-house approach.
+Use the full format when external search evaluates multiple candidates, the user asks for a detailed comparison, or a runtime dependency or external SDK needs a serious tradeoff analysis.
 
 ## Forward Testing
 
