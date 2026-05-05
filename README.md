@@ -242,7 +242,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
 2. Modificar sólo los archivos necesarios.
 3. Actualizar `CHANGELOG.md` si cambia comportamiento, criterios, workflow o documentación relevante.
 4. Actualizar `VERSION` cuando corresponda.
-5. Ejecutar `quick_validate.py`.
+5. Ejecutar `python .\scripts\validate_skill.py .`.
 6. Abrir un PR hacia la rama correspondiente.
 
 ---
@@ -255,7 +255,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
   - rama estable;
   - sólo versiones validadas;
   - cambios entran por PR;
-  - debe pasar `quick_validate.py`.
+  - debe pasar `python .\scripts\validate_skill.py .`.
 
 - `develop`
   - rama de integración;
@@ -290,7 +290,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
 
 - No commitear directo a `main`.
 - Todo cambio a `main` debe pasar por PR.
-- Antes de mergear a `main`, ejecutar `quick_validate.py`.
+- Antes de mergear a `main`, ejecutar `python .\scripts\validate_skill.py .`.
 - Todo cambio de comportamiento debe actualizar `CHANGELOG.md`.
 - Todo release debe actualizar `VERSION`.
 - Si cambia el workflow operativo de `SKILL.md`, subir al menos MINOR.
