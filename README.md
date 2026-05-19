@@ -47,9 +47,59 @@ Si una dependencia agrega más superficie de riesgo que valor, la recomendación
 
 ---
 
+## Instalación
+
+LibFind se instala como una skill de Codex: es una carpeta con `SKILL.md`, `agents/`, `references/` y scripts auxiliares. No requiere `npm install`, `pnpm install` ni dependencias de Node; `npm` y `pnpm` sólo aparecen cuando LibFind evalúa paquetes de un proyecto.
+
+### Opción recomendada: skill-installer
+
+Desde Codex, pedí instalar la skill desde este repositorio:
+
+```text
+Use $skill-installer to install LibFind from https://github.com/nicolaschiabrandozanotti/LibFind
+```
+
+Si la instalación se hace con los scripts del instalador de skills, el equivalente es:
+
+```bash
+python scripts/install-skill-from-github.py --repo nicolaschiabrandozanotti/LibFind --path . --name libfind
+```
+
+Para probar una rama antes del release estable, agregá `--ref`:
+
+```bash
+python scripts/install-skill-from-github.py --repo nicolaschiabrandozanotti/LibFind --path . --name libfind --ref develop
+```
+
+Reiniciá Codex después de instalar o actualizar una skill para que la detecte.
+
+### Opción manual: git clone
+
+En Windows PowerShell:
+
+```powershell
+$dest = if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "skills\libfind" } else { Join-Path $HOME ".codex\skills\libfind" }
+git clone --depth 1 https://github.com/nicolaschiabrandozanotti/LibFind.git $dest
+```
+
+En macOS o Linux:
+
+```bash
+dest="${CODEX_HOME:-$HOME/.codex}/skills/libfind"
+git clone --depth 1 https://github.com/nicolaschiabrandozanotti/LibFind.git "$dest"
+```
+
+Para actualizar una instalación manual:
+
+```bash
+git -C "${CODEX_HOME:-$HOME/.codex}/skills/libfind" pull --ff-only
+```
+
+---
+
 ## Contrato de salida
 
-LibFind ahora usa un contrato único:
+LibFind usa un contrato único:
 
 - `Outcome code` siempre va en inglés y en `kebab-case`
 - la explicación humana va en el idioma del usuario
@@ -66,7 +116,7 @@ Outcome codes canónicos:
 
 Esto evita mezclar un contrato semántico en inglés con frases exactas en español.
 
-Los templates oficiales viven en [references/output-formats.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/references/output-formats.md>).
+Los templates oficiales viven en [references/output-formats.md](references/output-formats.md).
 
 ---
 
@@ -118,11 +168,11 @@ Render and sanitize user-provided Markdown.
 
 ## Referencias
 
-- [SKILL.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/SKILL.md>): workflow operativo.
-- [references/rubric.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/references/rubric.md>): gates, scoring y heurísticas por categoría.
-- [references/output-formats.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/references/output-formats.md>): templates compactos y completos.
-- [references/scenarios.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/references/scenarios.md>): escenarios manuales y checklist de comportamiento.
-- [.plugin-eval/benchmark.json](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/.plugin-eval/benchmark.json>): escenarios espejados para benchmark.
+- [SKILL.md](SKILL.md): workflow operativo.
+- [references/rubric.md](references/rubric.md): gates, scoring y heurísticas por categoría.
+- [references/output-formats.md](references/output-formats.md): templates compactos y completos.
+- [references/scenarios.md](references/scenarios.md): escenarios manuales y checklist de comportamiento.
+- [.plugin-eval/benchmark.json](.plugin-eval/benchmark.json): escenarios espejados para benchmark.
 
 ---
 
@@ -209,7 +259,7 @@ Si `plugin-eval` está disponible:
 plugin-eval benchmark . --config ./.plugin-eval/benchmark.json
 ```
 
-El benchmark usa un verifier POSIX (`sh ./scripts/run_validate.sh .`) porque el harness de `plugin-eval` ejecuta verifiers con `/bin/zsh`. En Windows conviene correr ese benchmark desde un entorno compatible como WSL o Git Bash, o usar [references/scenarios.md](</C:/Users/nicoc/OneDrive/Documentos/New project 2/LibFind/references/scenarios.md>) como checklist manual.
+El benchmark usa un verifier POSIX (`sh ./scripts/run_validate.sh .`) porque el harness de `plugin-eval` ejecuta verifiers con `/bin/zsh`. En Windows conviene correr ese benchmark desde un entorno compatible como WSL o Git Bash, o usar [references/scenarios.md](references/scenarios.md) como checklist manual.
 
 ---
 
@@ -221,6 +271,72 @@ El benchmark usa un verifier POSIX (`sh ./scripts/run_validate.sh .`) porque el 
 4. Actualizar `VERSION` cuando corresponda.
 5. Ejecutar la validación local en tu sistema operativo.
 6. Abrir un PR hacia la rama correspondiente.
+
+---
+
+## Flujo de branches
+
+### Branches principales
+
+- `main`
+  - rama estable;
+  - sólo versiones validadas;
+  - cambios entran por PR;
+  - debe pasar la validación local.
+
+- `develop`
+  - rama de integración;
+  - recibe features y mejoras documentales antes de release.
+
+### Branches de trabajo
+
+- `feat/nombre-del-cambio`
+  - nuevas capacidades de la skill;
+  - nuevos criterios;
+  - nuevos documentos.
+
+- `fix/nombre-del-fix`
+  - correcciones de errores;
+  - fixes de validación;
+  - correcciones de comportamiento.
+
+- `docs/nombre-del-cambio`
+  - mejoras de README, changelog o documentación.
+
+- `chore/nombre`
+  - tareas menores de mantenimiento.
+
+- `refactor/nombre`
+  - reorganización interna sin cambiar comportamiento.
+
+- `hotfix/nombre`
+  - corrección urgente desde `main`;
+  - debe volver a `main` y `develop`.
+
+### Reglas
+
+- No commitear directo a `main`.
+- Todo cambio a `main` debe pasar por PR.
+- Antes de mergear a `main`, ejecutar la validación local.
+- Todo cambio de comportamiento debe actualizar `CHANGELOG.md`.
+- Todo release debe actualizar `VERSION`.
+- Si cambia el workflow operativo de `SKILL.md`, subir al menos MINOR.
+- Si sólo cambia `README.md` o aclaraciones menores, usar PATCH.
+- Si rompe compatibilidad con invocaciones anteriores, usar MAJOR.
+
+---
+
+## Changelog
+
+Los cambios se registran en [CHANGELOG.md](CHANGELOG.md) con formato simple inspirado en Keep a Changelog.
+
+Cada versión debe indicar:
+
+- fecha;
+- cambios agregados;
+- cambios modificados;
+- fixes;
+- cambios incompatibles, si existen.
 
 ---
 
