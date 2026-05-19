@@ -2,7 +2,7 @@
 
 **LibFind** es una skill interna para evaluar si conviene reutilizar una librería open source de GitHub o implementar una solución propia dentro del proyecto.
 
-Su objetivo no es buscar "la librería más popular", sino ayudar a tomar una decisión técnica conservadora, razonada y basada en evidencia.
+Su objetivo no es encontrar "la librería más popular", sino ayudar a tomar una decisión técnica conservadora, razonada y basada en evidencia.
 
 ---
 
@@ -17,7 +17,7 @@ La skill existe para evitar dos problemas opuestos:
 
 ---
 
-## Cuándo Usarla
+## Cuándo usarla
 
 Usá LibFind cuando:
 
@@ -27,8 +27,6 @@ Usá LibFind cuando:
 - necesitás comparar varias librerías open source;
 - querés validar licencia, seguridad, mantenimiento o compatibilidad antes de depender de un paquete;
 - el código a construir podría introducir complejidad que ya fue resuelta por proyectos maduros.
-
-## Cuándo NO Usarla
 
 No hace falta usar LibFind cuando:
 
@@ -41,152 +39,144 @@ No hace falta usar LibFind cuando:
 
 ---
 
-## Qué Problema Resuelve
-
-LibFind reduce decisiones impulsivas sobre dependencias. Obliga a revisar contexto del repo, scope de búsqueda, licencia, seguridad, mantenimiento, compatibilidad, costo de integración y riesgo de supply chain antes de recomendar una librería.
-
-También protege contra dependency creep: agregar paquetes grandes, riesgosos o mal mantenidos para resolver problemas simples.
-
----
-
 ## Filosofía
 
-### Conservative by default
+LibFind es conservadora por defecto. Una librería no se recomienda por ser popular o conocida. Se recomienda sólo si pasa gates críticos y supera claramente a una implementación propia.
 
-LibFind es conservadora por defecto. Una librería no se recomienda por ser popular, conocida o tener muchas estrellas. Se recomienda sólo si pasa los gates críticos y supera claramente a una implementación propia.
-
-### Anti dependency creep
-
-Si una dependencia agrega más superficie de riesgo que valor, la recomendación debe ser:
-
-`build it in-house`
-
-Esto aplica especialmente cuando:
-
-- el problema es simple;
-- la implementación propia es corta;
-- la librería requiere mucha configuración;
-- el paquete es demasiado grande;
-- sólo se necesita una parte mínima;
-- hay dudas de licencia, seguridad o mantenimiento.
+Si una dependencia agrega más superficie de riesgo que valor, la recomendación debe ser `build-it-in-house`.
 
 ---
 
-## Cómo Invocarla
+## Instalación
 
-Prompt recomendado:
+LibFind se instala como una skill de Codex: es una carpeta con `SKILL.md`, `agents/`, `references/` y scripts auxiliares. No requiere `npm install`, `pnpm install` ni dependencias de Node; `npm` y `pnpm` sólo aparecen cuando LibFind evalúa paquetes de un proyecto.
+
+### Opción recomendada: skill-installer
+
+Desde Codex, pedí instalar la skill desde este repositorio:
 
 ```text
-Use $libfind to find and evaluate reusable open-source libraries before implementing this feature.
+Use $skill-installer to install LibFind from https://github.com/nicolaschiabrandozanotti/LibFind
 ```
 
-También puede invocarse cuando se quiera evaluar una librería específica o comparar alternativas.
+Si la instalación se hace con los scripts del instalador de skills, el equivalente es:
+
+```bash
+python scripts/install-skill-from-github.py --repo nicolaschiabrandozanotti/LibFind --path . --name libfind
+```
+
+Para probar una rama antes del release estable, agregá `--ref`:
+
+```bash
+python scripts/install-skill-from-github.py --repo nicolaschiabrandozanotti/LibFind --path . --name libfind --ref develop
+```
+
+Reiniciá Codex después de instalar o actualizar una skill para que la detecte.
+
+### Opción manual: git clone
+
+En Windows PowerShell:
+
+```powershell
+$dest = if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "skills\libfind" } else { Join-Path $HOME ".codex\skills\libfind" }
+git clone --depth 1 https://github.com/nicolaschiabrandozanotti/LibFind.git $dest
+```
+
+En macOS o Linux:
+
+```bash
+dest="${CODEX_HOME:-$HOME/.codex}/skills/libfind"
+git clone --depth 1 https://github.com/nicolaschiabrandozanotti/LibFind.git "$dest"
+```
+
+Para actualizar una instalación manual:
+
+```bash
+git -C "${CODEX_HOME:-$HOME/.codex}/skills/libfind" pull --ff-only
+```
 
 ---
 
-## Ejemplos de Uso
+## Contrato de salida
 
-```text
-Use $libfind to evaluate whether we should add a markdown parser library or implement a small parser in-house.
-```
+LibFind usa un contrato único:
 
-```text
-Use $libfind before building this CSV import feature. Check GitHub libraries compatible with our stack and recommend only if the dependency is worth it.
-```
+- `Outcome code` siempre va en inglés y en `kebab-case`
+- la explicación humana va en el idioma del usuario
+- `Reason code` es opcional y también va en inglés
 
-```text
-Use $libfind to compare date/time libraries for this module and decide whether we should use one or build the required formatting helper ourselves.
-```
+Outcome codes canónicos:
+
+- `recommended-library`
+- `acceptable-alternative`
+- `use-only-if-constraint-applies`
+- `do-not-use`
+- `build-it-in-house`
+- `insufficient-evidence`
+
+Esto evita mezclar un contrato semántico en inglés con frases exactas en español.
+
+Los templates oficiales viven en [references/output-formats.md](references/output-formats.md).
 
 ---
 
-## Ejemplo de Salida Esperada
+## Ejemplo de salida
 
 ```markdown
 ## Context detected
 - Language: TypeScript
-- Framework: Next.js
+- Framework or runtime: Next.js
 - Package manager: pnpm
 - Dependency type: runtime dependency
 
 ## Problem to solve
-Parse and sanitize user-provided markdown.
+Render and sanitize user-provided Markdown.
 
 ## Search scope
 - Registry: npm
 - Keywords: markdown parser, markdown sanitizer, commonmark
-- Minimum features: parsing, sanitization support, ESM compatibility
+- Minimum required features: parsing, sanitization support, ESM compatibility
 
 ## Candidates evaluated
-| Candidate | Outcome | Notes |
-| --- | --- | --- |
-| example-lib-a | do not use | Unresolved advisory |
-| example-lib-b | acceptable alternative | Good fit, larger bundle |
-| example-lib-c | recommended library | Passes gates and reduces complexity |
+| Candidate | Category | Outcome code | Notes |
+| --- | --- | --- | --- |
+| example-lib-a | runtime dependency | do-not-use | Unresolved advisory |
+| example-lib-b | runtime dependency | acceptable-alternative | Good fit, larger bundle |
+| example-lib-c | runtime dependency | recommended-library | Passes gates and reduces complexity |
 
 ## Final recommendation
-recommended library: example-lib-c
+- Outcome code: recommended-library
+- Recommended option: example-lib-c
+- Reason code: standards-complexity
 
 ## Pending risks
-- Verify production bundle impact manually.
+- Verificar manualmente el impacto en bundle y cold start.
 
 ## Checklist before integration
-- Review lockfile diff.
-- Run security audit.
-- Add integration tests.
+- Revisar lockfile diff.
+- Correr auditoría de seguridad.
+- Agregar tests de integración.
+
+## Sources or evidence reviewed
+- GitHub repository
+- Package registry page
+- Advisory sources
+- Documentation
 ```
 
 ---
 
-## Criterios Evaluados
+## Referencias
 
-LibFind evalúa:
-
-- **Licencia:** claridad, compatibilidad y obligaciones.
-- **Seguridad:** advisories, CVEs, issues de seguridad y señales de riesgo.
-- **Mantenimiento:** releases, actividad, respuesta a issues y madurez.
-- **Compatibilidad:** lenguaje, framework, runtime, package manager y deploy.
-- **Costo de integración:** configuración, cambios de arquitectura y testing.
-- **Supply chain:** provenance, maintainer risk, install scripts y package/repo match.
-- **Fit funcional:** si resuelve el problema real sin forzar abstracciones.
-- **Build vs in-house:** si la dependencia reduce o aumenta complejidad neta.
+- [SKILL.md](SKILL.md): workflow operativo.
+- [references/rubric.md](references/rubric.md): gates, scoring y heurísticas por categoría.
+- [references/output-formats.md](references/output-formats.md): templates compactos y completos.
+- [references/scenarios.md](references/scenarios.md): escenarios manuales y checklist de comportamiento.
+- [.plugin-eval/benchmark.json](.plugin-eval/benchmark.json): escenarios espejados para benchmark.
 
 ---
 
-## Outcomes Posibles
-
-- `recommended library`
-- `acceptable alternative`
-- `use only if constraint X applies`
-- `do not use`
-- `build it in-house`
-- `insufficient evidence`
-
-Cuando falte evidencia crítica, la skill debe usar:
-
-```text
-Evidencia insuficiente para recomendar esta librería de forma segura.
-```
-
----
-
-## Limitaciones
-
-LibFind v0.1.0 es advisory-only:
-
-- no es auditoría legal formal;
-- no es auditoría de seguridad formal;
-- no instala paquetes;
-- no modifica manifests;
-- no modifica código;
-- no crea wrappers ni adapters;
-- no hace commits.
-
-La decisión final de producción debe validarse manualmente con los procesos internos del equipo.
-
----
-
-## Estructura de Archivos
+## Estructura de archivos
 
 ```text
 libfind/
@@ -200,54 +190,91 @@ libfind/
 ├── agents/
 │   └── openai.yaml
 ├── scripts/
+│   ├── run_validate.ps1
+│   ├── run_validate.sh
 │   └── validate_skill.py
 └── references/
+    ├── output-formats.md
     ├── rubric.md
     └── scenarios.md
 ```
 
 ---
 
-## Cómo Validar
+## Validación local
 
-Desde la raíz de la skill, ejecutar el validador local:
+El validador usa sólo la standard library de Python.
+
+### Windows PowerShell
 
 ```powershell
-python .\scripts\validate_skill.py .
+powershell -ExecutionPolicy Bypass -File .\scripts\run_validate.ps1 .
 ```
 
-El script usa sólo la standard library de Python, por lo que no requiere `PyYAML` ni paquetes externos. Si `python` no está en el PATH, usá cualquier ejecutable de Python 3 disponible y mantené los argumentos relativos.
+Si tu execution policy permite scripts locales, también podés usar:
+
+```powershell
+.\scripts\run_validate.ps1 .
+```
+
+Alternativa directa sin wrapper:
+
+```powershell
+py -3 .\scripts\validate_skill.py .
+```
+
+### Linux
+
+```bash
+sh ./scripts/run_validate.sh .
+```
+
+Alternativa directa:
+
+```bash
+python3 ./scripts/validate_skill.py .
+```
+
+### macOS
+
+```bash
+sh ./scripts/run_validate.sh .
+```
+
+Alternativa directa:
+
+```bash
+python3 ./scripts/validate_skill.py .
+```
 
 Antes de mergear cambios a `main`, la validación debe pasar.
 
 ---
 
-## Cómo Probar Escenarios
-
-Los escenarios de prueba viven en `references/scenarios.md` y están espejados en `.plugin-eval/benchmark.json`.
+## Benchmark con plugin-eval
 
 Si `plugin-eval` está disponible:
 
-```powershell
-plugin-eval benchmark . --config .\.plugin-eval\benchmark.json
+```bash
+plugin-eval benchmark . --config ./.plugin-eval/benchmark.json
 ```
 
-Si no está disponible, usar `references/scenarios.md` como checklist manual para revisar respuestas de la skill.
+El benchmark usa un verifier POSIX (`sh ./scripts/run_validate.sh .`) porque el harness de `plugin-eval` ejecuta verifiers con `/bin/zsh`. En Windows conviene correr ese benchmark desde un entorno compatible como WSL o Git Bash, o usar [references/scenarios.md](references/scenarios.md) como checklist manual.
 
 ---
 
-## Cómo Contribuir
+## Cómo contribuir
 
 1. Crear una branch según el tipo de cambio.
 2. Modificar sólo los archivos necesarios.
 3. Actualizar `CHANGELOG.md` si cambia comportamiento, criterios, workflow o documentación relevante.
 4. Actualizar `VERSION` cuando corresponda.
-5. Ejecutar `python .\scripts\validate_skill.py .`.
+5. Ejecutar la validación local en tu sistema operativo.
 6. Abrir un PR hacia la rama correspondiente.
 
 ---
 
-## Flujo de Branches
+## Flujo de branches
 
 ### Branches principales
 
@@ -255,7 +282,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
   - rama estable;
   - sólo versiones validadas;
   - cambios entran por PR;
-  - debe pasar `python .\scripts\validate_skill.py .`.
+  - debe pasar la validación local.
 
 - `develop`
   - rama de integración;
@@ -290,7 +317,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
 
 - No commitear directo a `main`.
 - Todo cambio a `main` debe pasar por PR.
-- Antes de mergear a `main`, ejecutar `python .\scripts\validate_skill.py .`.
+- Antes de mergear a `main`, ejecutar la validación local.
 - Todo cambio de comportamiento debe actualizar `CHANGELOG.md`.
 - Todo release debe actualizar `VERSION`.
 - Si cambia el workflow operativo de `SKILL.md`, subir al menos MINOR.
@@ -301,7 +328,7 @@ Si no está disponible, usar `references/scenarios.md` como checklist manual par
 
 ## Changelog
 
-Los cambios se registran en `CHANGELOG.md` con formato simple inspirado en Keep a Changelog.
+Los cambios se registran en [CHANGELOG.md](CHANGELOG.md) con formato simple inspirado en Keep a Changelog.
 
 Cada versión debe indicar:
 
@@ -313,16 +340,10 @@ Cada versión debe indicar:
 
 ---
 
-## Semantic Versioning
+## Versionado
 
 LibFind usa Semantic Versioning:
 
 - **MAJOR:** cambios incompatibles en el comportamiento de la skill o en invocaciones anteriores.
 - **MINOR:** nuevas capacidades, nuevos criterios, nuevos formatos compatibles o cambios relevantes en el workflow operativo.
 - **PATCH:** correcciones de redacción, aclaraciones, fixes menores y mejoras de documentación.
-
-Versión inicial:
-
-```text
-0.1.0
-```

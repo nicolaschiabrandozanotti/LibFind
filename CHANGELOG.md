@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0] - 2026-05-05
+
+### Added
+
+- Added a canonical outcome contract with stable `Outcome code` values and optional `Reason code` values.
+- Added `references/output-formats.md` with explicit compact and full response templates.
+- Added category-specific heuristics for runtime dependencies, external SDKs, dev tooling, plugins, and reference-only reuse.
+- Added more manual and benchmark scenarios for named packages, existing internal utilities, provenance mismatch, dev tooling, and no-network evaluation.
+- Added cross-platform validation wrappers for PowerShell and POSIX shells.
+- Added README installation instructions for installing LibFind through the Codex skill installer or a manual git clone.
+
+### Changed
+
+- Clarified the minimum evidence required before recommending a search-justified dependency.
+- Updated the benchmark verifier to use a portable POSIX wrapper instead of an inline shell fallback chain.
+- Updated the README to document Windows, Linux, and macOS validation workflows.
+- Updated README references to use relative links instead of user-specific absolute paths.
+- Strengthened the local validator with required-file, version, benchmark, and reference consistency checks.
+
 ## [0.2.0] - 2026-05-04
 
 ### Changed
